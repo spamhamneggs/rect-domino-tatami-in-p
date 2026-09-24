@@ -1,6 +1,6 @@
 # Rectangular Domino Tatami Tiling is in P
 
-Working repository for a short note proving that rectangular pure-domino tatami
+Working repository for a short paper proving that rectangular pure-domino tatami
 tileability, or RECT-DTC, is decidable in polynomial time.
 
 - `paper-draft`, the draft. Still in development, not submission-ready.
