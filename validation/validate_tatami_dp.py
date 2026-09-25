@@ -1,4 +1,4 @@
-"""Validation for "Rectangular Domino Tatami Tiling is in P" (paper-draft, Section 5).
+"""Validation for "Rectangular Domino Tatami Tiling is in P" (paper-draft, Section 6).
 
 Compares the decision procedure of Section 4 against two published enumeration
 tables: Ruskey and Woodcock Table 2 (T(m,n) for 1 <= m,n <= 16) and Hickerson's

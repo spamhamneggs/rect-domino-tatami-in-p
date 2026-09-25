@@ -1,6 +1,7 @@
 # Validation for "Rectangular Domino Tatami Tiling is in P"
 
-Supplementary material for `paper-draft`, Section 5.
+Supplementary material for `paper-draft`, Section 6 (decision procedure) and
+Section 5 (monomer-dimer fallback).
 
 ## What it does
 
@@ -27,6 +28,18 @@ This checks consistency between the implementation, the cited theorems, and the
 published enumerations. It is evidence of correctness, not a substitute for the proof
 in Section 4.
 
+## Fallback construction
+
+`validate_monomer_fallback.py` implements the `FALLBACK` construction of
+Section 5. It restricts a running bond to the rectangle in the cheaper
+orientation and verifies each emitted tiling for exact cover, the tatami
+condition at every interior grid point, the orientation count formulas
+with $m \le \min(r,c)$, parity $m \equiv rc \pmod 2$, and boundary
+placement of all monomers. It checks all 900 tilings with
+$1 \le r, c \le 30$, confirms every domino no-instance with
+$1 \le r, c \le 16$ receives a tiling, and runs scaling spot checks up to
+$1000 \times 999$.
+
 ## Provenance of the embedded table
 
 We transcribed the 256 values from Table 2 of F. Ruskey and J. Woodcock,
@@ -47,6 +60,7 @@ Standard library only; any Python 3 works:
 
 ```sh
 python3 validate_tatami_dp.py
+python3 validate_monomer_fallback.py
 ```
 
 Expected output ends with `ALL CHECKS PASSED` and exit code 0. Any mismatch prints
