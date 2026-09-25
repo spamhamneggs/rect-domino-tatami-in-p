@@ -1,6 +1,6 @@
 # Validation for "Rectangular Domino Tatami Tiling is in P"
 
-Supplementary material for `paper-draft`, Section 6 (decision procedure) and
+Supplementary material for `paper-draft`, Section 4 (decision procedure) and
 Section 5 (monomer-dimer fallback).
 
 ## What it does
