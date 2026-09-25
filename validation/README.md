@@ -56,7 +56,7 @@ on 2026-09-24.
 
 ## How to run
 
-Standard library only; any Python 3 works:
+Standard library only; any Python 3.6+ works:
 
 ```sh
 python3 validate_tatami_dp.py

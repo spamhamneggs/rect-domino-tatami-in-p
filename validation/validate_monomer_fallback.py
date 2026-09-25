@@ -151,6 +151,9 @@ def verify(r, c):
 
 
 def main():
+    if not __debug__:
+        print("refusing to run with assertions disabled (python -O)")
+        return 2
     failed = False
 
     # 1. Exhaustive verification on 1 <= r, c <= 30 (900 tilings).
