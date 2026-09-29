@@ -1,0 +1,619 @@
+
+Filling rectangular rooms with Tatami mats  (by Dean Hickerson, Mar 11 2002)
+------------------------------------------
+
+Tatami mats are 1x2 rectangles; at most 3 are allowed to meet at a point.
+This writeup gives recurrences for counting the tilings of rectangular rooms
+by Tatami mats, and is related to the following sequences:
+
+    A068920 gives the total number of tilings of an r x s rectangle, listed
+            by diagonals.
+    A068921 - A068925 give rows 2 to 6 of the above.
+    A067925 gives the total number of tilings of rectangles of area 2n.
+
+    A068926 gives the number of incongruent tilings of an r x s rectangle,
+            listed by diagonals.
+    A068927 - A068931 give rows 2 to 6 of the above.
+    A052270 gives the number of incongruent tilings of rectangles of area 2n.
+
+We'll start with some examples which illustrate the general case.  Here's
+a tiling of a 5x10 room:
+
+    .___________________.
+    | |___| |___|___|___|
+    |_| | |_| |___|___| |
+    | |_|_| |_| |___| |_|
+    |_|___|_| |_|___|_| |
+    |___|___|_|___|___|_|
+
+Notice that this is made up of 2 smaller rectangles, of sizes 5x4 and 5x6:
+
+    ._______. .___________.
+    | |___| | |___|___|___|
+    |_| | |_| | |___|___| |
+    | |_|_| | |_| |___| |_|
+    |_|___|_| | |_|___|_| |
+    |___|___| |_|___|___|_|
+
+Tilings similar to these two, of sizes r x (r-1) and r x (r+1), exist for
+every odd r >= 3; the first few cases are shown here:
+
+                                  .___________.
+                                  | |___|___| |
+                 ._______.        |_| |___| |_|
+                 | |___| |        | |_| | |_| |
+    .___.        |_| | |_|        |_| |_|_| |_|
+    | | |        | |_|_| |        | |_|___|_| |
+    |_|_|        |_|___|_|        |_|___|___|_|
+    |___|        |___|___|        |___|___|___|
+
+     3x2            5x4                7x6
+
+
+                                  ._______________.
+                                  | |___|___|___| |
+                 .___________.    |_| |___|___| |_|
+                 | |___|___| |    | |_| |___| |_| |
+    ._______.    |_| |___| |_|    |_| |_|___|_| |_|
+    | |___| |    | |_|___|_| |    | |_|___|___|_| |
+    |_|___|_|    |_|___|___|_|    |_|___|___|___|_|
+    |___|___|    |___|___|___|    |___|___|___|___|
+
+       3x4            5x6                7x8
+
+We will see later that if 3 <= r <= s and r is odd, then every tiling of an
+r x s room is made up of these tilings of r x (r-1) and r x (r+1) rectangles.
+Thus, there is a 2 to 1 correspondence between such tilings and compositions
+of s with parts r-1 and r+1.  (A 'composition' of an integer s is a way of
+writing s as a sum of positive integers called 'parts'; two compositions
+are considered different even if they are rearrangements of each other.)
+For example, the tiling above corresponds to the composition 10=4+6.  (Given
+the composition, we can orient the first subrectangle in two ways; after
+that all the orientations are forced.  Hence the correspondence is 2 to 1.)
+
+Next, here's a tiling of a 6x12 room:
+
+    ._______________________.
+    | |___|___|___| |___|___|
+    |_| |___|___| |_| |___| |
+    | |_| |___| |_| |_| | |_|
+    |_| |_|___|_| |_| |_|_| |
+    | |_|___|___|_| |_|___|_|
+    |_|___|___|___|_|___|___|
+
+This is made up of 4 smaller rectangles:  6x1, 6x6, 6x1, and 6x4:
+
+    ._. .___________. ._. ._______.
+    | | |___|___|___| | | |___|___|
+    |_| | |___|___| | |_| | |___| |
+    | | |_| |___| |_| | | |_| | |_|
+    |_| | |_|___|_| | |_| | |_|_| |
+    | | |_|___|___|_| | | |_|___|_|
+    |_| |___|___|___| |_| |___|___|
+
+In general, if 4 <= r <= s and r is even, then every tiling of an r x s
+rectangle is made up of tilings of r x 1, r x (r-2), and r x r rectangles;
+the r x 1 ones alternate with the other two types.  In this case there's a
+1 to 1 correspondence between such tilings and compositions of s with
+parts 1, r-2, and r, with the 1's alternating with the other two values.
+For example, the above tiling corresponds to 12=1+6+1+4.
+
+The cases r=1 and r=2 are different.  For r=1, it's obvious that tilings
+are in 1 to 1 correspondence with compositions of s in which all parts
+equal 2; thus there's exactly one tiling of a 1 x s rectangle if s is even,
+and none if s is odd.
+
+For r=2 there's a 1 to 1 correspondence between tilings of a 2 x s
+rectangle and compositions of s with parts 1 and 2, in which 2 2's are not
+allowed to be adjacent.  E.g. the composition 9=2+1+1+2+1+2 corresponds to
+this tiling:
+
+    ._________________.
+    |___| | |___| |___|
+    |___|_|_|___|_|___|
+
+
+Recurrences
+-----------
+
+To count the tilings, we'll introduce some notation:
+
+For r>=1 and s>=1, let t(r,s) be the number of tilings of an r x s rectangle
+with Tatami mats.  (Here we count 2 tilings as different even if one is
+a rotation or reflection of the other.)  Let ti(r,s) be the number of
+incongruent tilings of an r x s rectangle.
+
+For r>=1 and any integer s, let c(r,s) be the number of compositions of
+s of the type described above.  Specifically:
+
+    c(1,s) is the number of compositions of s with all parts equal to 2.
+    Thus c(1,s)=1 if s >= 0 is even; otherwise c(1,s)=0.
+
+    c(2,s) is the number of compositions of s into parts 1 and 2, with no
+    2 2's being adjacent.
+
+    If r>=3 is odd, c(r,s) is the number of compositions of s into
+    parts r-1 and r+1.
+
+    If r>=4 is even, c(r,s) is the number of compositions of s into parts
+    1, r-2, and r, in which the 1's alternate with the other two values.
+
+In each case, let cs(r,s) be the number of compositions counted by c(r,s)
+which are symmetric; i.e. they're unchanged if we reverse the order of the
+parts.
+
+
+>From the description of Tatami tilings given above, it's easy to see that
+if 1 <= r <= s then:
+
+    t(r,s) = 2 c(r,s)      if r >= 3 is odd;
+
+    t(r,s) = c(r,s)        otherwise.
+
+Counting the incongruent tilings is slightly messier.  For r < s, two
+tilings are congruent iff either their corresponding compositions are
+equal or they are reversals of each other.  So the number of incongruent
+tilings of an r x s rectangle is equal to the number of symmetric
+compositions counted by c(r,s) plus half the number of asymmetric
+tilings counted by c(r,s).  Thus ti(r,s) = cs(r,s) + (c(r,s) - cs(r,s))/2
+= (c(r,s) + cs(r,s))/2.
+
+If r=s is odd, then ti(r,s) is obviously 0.  If r=s is even, then there
+are two compositions of s counted by c(r,s):  For r=s=2 they are 2 and
+1+1; for r = s >= 4 they are s and 1+(s-2)+1.  But the corresponding
+tilings are 90 degree rotations of each other, so ti(r,s)=1.
+
+Thus, we have:
+
+    ti(r,s) = (c(r,s) + cs(r,s))/2              if 1 <= r < s;
+
+    ti(r,r) = 0                                 if r is odd;
+
+    ti(r,r) = 1                                 if r is even.
+
+We now consider the computation of c(r,s):
+
+First consider the case in which r >= 3 is odd.  If s is nonzero then each
+composition of s must start with either r-1 or r+1.  Deleting this first
+part gives a composition counted by c(r,s-r+1) or c(r,s-r-1).  Conversely,
+we can prepend r-1 to any composition counted by c(r,s-r+1) and r+1 to
+any composition counted by c(r,s-r-1) to obtain one counted by c(r,s).
+Thus c(r,s)=c(r,s-r+1)+c(r,s-r-1) whenever s is nonzero.
+
+Next suppose r=2.  Let c1(2,s) be the number of compositions counted by
+c(2,s) in which the first part is 1; let c2(2,s) be the number of them
+in which the first part is 2.  Then c(2,s)=c1(2,s)+c2(2,s) whenever
+s is nonzero.  Also, c1(2,s)=c(2,s-1) for all s, and c2(2,s)=1 if s=2;
+otherwise c2(2,s)=c1(2,s-2).
+
+Finally suppose r >= 4 is even.  Let c1(r,s) be the number of compositions
+counted by c(r,s) in which the first part is 1; let c2(r,s) be the
+number of them in which the first part is either r-2 or r.  Then
+c(r,s)=c1(r,s)+c2(r,s) whenever s is nonzero.  Also, c1(r,s)=1 if s=1;
+otherwise c1(r,s)=c2(r,s-1).  Similarly, c2(r,s)=1 if s=r-2 or s=r;
+otherwise c2(r,s)=c1(r,s-r+2)+c1(r,s-r).
+
+Using the notation "(x=y)" to denote 1 if x=y and 0 if x != y, we can
+summarize these results as follows:
+
+    c(r,s) = 0 if s < 0.
+
+    c(1,s) = 1 if s > 0 is even;
+           = 0 otherwise.
+
+    c(2,s) = c1(2,s) + c2(2,s) + (s=0)
+
+    If r >= 3 is odd, then
+
+        c(r,s) = c(r,s-r+1) + c(r,s-r-1) + (s=0)
+
+    If r >= 4 is even, then
+
+        c(r,s) = c1(r,s) + c2(r,s) + (s=0)
+
+    c1(2,s) = c(2,s-1)
+
+    c2(2,s) = c1(2,s-2) + (s=2)
+
+    If r >= 4 is even, then:
+
+        c1(r,s) = c2(r,s-1) + (s=1)
+
+        c2(r,s) = c1(r,s-r+2) + c1(r,s-r) + (s=r-2) + (s=r)
+
+The symmetric compositions can also be counted by recurrence formulas.
+For r even, let c1s(r,s) and c2s(r,s) be the numbers of symmetric
+compositions among those counted by c1(r,s) and c2(r,s), respectively.
+Then:
+
+    cs(r,s) = 0 if s < 0.
+
+    cs(1,s) = c(1,s)
+
+    cs(2,s) = c1s(2,s) + c2s(2,s) + (s=0)
+
+    If r >= 3 is odd, then
+
+        cs(r,s) = cs(r,s-2r+2) + cs(r,s-2r-2) + (s=0) + (s=r-1) + (s=r+1);
+
+    If r >= 4 is even, then
+
+        cs(r,s) = c1s(r,s) + c2s(r,s) + (s=0).
+
+    c1s(2,s) = cs(2,s-2) + (s=1)
+
+    c2s(2,s) = c1s(2,s-4) + (s=2)
+
+    If r >= 4 is even, then:
+
+        c1s(r,s) = c2s(r,s-2) + (s=1)
+
+        c2s(r,s) = c1s(r,s-2r+4) + c1s(r,s-2r) + (s=r-2) + (s=r)
+
+
+Tables and sequences
+--------------------
+
+Here are small tables of t(r,s) and ti(r,s):
+
+
+t(r,s)
+
+      \ s  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+     r \------------------------------------------------------------
+     1 |   0   1   0   1   0   1   0   1   0   1   0   1   0   1   0
+     2 |   1   2   3   4   6   9  13  19  28  41  60  88 129 189 277
+     3 |   0   3   0   4   0   6   0  10   0  16   0  26   0  42   0
+     4 |   1   4   4   2   3   3   3   5   5   6   8   8  11  13  14
+     5 |   0   6   0   3   0   2   0   2   0   4   0   4   0   6   0
+     6 |   1   9   6   3   2   2   2   1   1   2   3   4   3   3   3
+     7 |   0  13   0   3   0   2   0   2   0   0   0   2   0   4   0
+     8 |   1  19  10   5   2   1   2   2   2   1   0   0   1   2   3
+     9 |   0  28   0   5   0   1   0   2   0   2   0   0   0   0   0
+    10 |   1  41  16   6   4   2   0   1   2   2   2   1   0   0   0
+    11 |   0  60   0   8   0   3   0   0   0   2   0   2   0   0   0
+    12 |   1  88  26   8   4   4   2   0   0   1   2   2   2   1   0
+    13 |   0 129   0  11   0   3   0   1   0   0   0   2   0   2   0
+    14 |   1 189  42  13   6   3   4   2   0   0   0   1   2   2   2
+    15 |   0 277  0   14   0   3   0   3   0   0   0   0   0   2   0
+
+The values of t(r,s), listed by diagonals, are in sequence A068920; rows
+2 through 6 are in A068921 - A068925.  Sequence A067925 contains the
+total number of ways of arranging n Tatami mats in a rectangle; it's the
+sum of t(r,s) over all factorizations  2n = rs.
+
+
+ti(r,s)
+
+      \ s  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+     r \------------------------------------------------------------
+     1 |   0   1   0   1   0   1   0   1   0   1   0   1   0   1   0
+     2 |   1   1   2   3   4   6   8  12  16  24  33  49  69 102 145
+     3 |   0   2   0   2   0   2   0   4   0   5   0   9   0  12   0
+     4 |   1   3   2   1   2   2   2   3   3   4   5   5   6   8   8
+     5 |   0   4   0   2   0   1   0   1   0   1   0   2   0   2   0
+     6 |   1   6   2   2   1   1   1   1   1   1   2   2   2   2   2
+     7 |   0   8   0   2   0   1   0   1   0   0   0   1   0   1   0
+     8 |   1  12   4   3   1   1   1   1   1   1   0   0   1   1   2
+     9 |   0  16   0   3   0   1   0   1   0   1   0   0   0   0   0
+    10 |   1  24   5   4   1   1   0   1   1   1   1   1   0   0   0
+    11 |   0  33   0   5   0   2   0   0   0   1   0   1   0   0   0
+    12 |   1  49   9   5   2   2   1   0   0   1   1   1   1   1   0
+    13 |   0  69   0   6   0   2   0   1   0   0   0   1   0   1   0
+    14 |   1 102  12   8   2   2   1   1   0   0   0   1   1   1   1
+    15 |   0 145   0   8   0   2   0   2   0   0   0   0   0   1   0
+
+The values of ti(r,s), listed by diagonals, are in sequence A068926; rows
+2 through 6 are in A068927 - A068931.  Sequence A052270 contains the
+number of incongruent ways of arranging n Tatami mats in a rectangle; it's
+the sum of ti(r,s) over all factorizations  2n = rs  with  r <= s.
+
+
+Mathematica programs
+--------------------
+
+Here are Mathematica functions which implement the recurrences above,
+and give the terms of sequences A052270, A067925, A068920, and A068926:
+
+eq[x_,y_]:=If[x==y, 1, 0];
+
+c[r_,s_]:=
+Which[s<0,              0,
+      r==1,             1-Mod[s,2],
+      r==2,             c1[2,s] + c2[2,s] + eq[s,0],
+      OddQ[r],          c[r,s] = c[r,s-r+1] + c[r,s-r-1] + eq[s,0],
+      EvenQ[r],         c[r,s] = c1[r,s] + c2[r,s] + eq[s,0] ];
+
+c1[r_,s_]:=
+Which[s<=0,             0,
+      r==2,             c[2,s-1],
+      EvenQ[r],         c2[r,s-1] + eq[s,1] ];
+
+c2[r_,s_]:=
+Which[s<=0,             0,
+      r==2,             c2[2,s] = c1[2,s-2] + eq[s,2],
+      EvenQ[r],         c2[r,s] = c1[r,s-r+2] + c1[r,s-r] +
+                                  eq[s,r-2] + eq[s,r] ];
+
+t[r_,s_]:=
+Which[r>s,              t[s,r],
+      OddQ[r] && r>1,   2c[r,s],
+      True,             c[r,s] ];
+
+cs[r_,s_]:=
+Which[s<0,              0,
+      r==1,             c[r,s],
+      r==2,             cs[2,s] = c1s[r,s] + c2s[r,s] + eq[s,0],
+      OddQ[r],          cs[r,s] = cs[r,s-2r+2] + cs[r,s-2r-2] + 
+                                  eq[s,0] + eq[s,r-1] + eq[s,r+1],
+      EvenQ[r],         cs[r,s] = c1s[r,s] + c2s[r,s] + eq[s,0] ];
+
+c1s[r_,s_]:=
+Which[s<=0,             0,
+      r==2,             cs[r,s-2] + eq[s,1],
+      EvenQ[r],         c2s[r,s-2] + eq[s,1] ];
+
+c2s[r_,s_]:=
+Which[s<=0,             0,
+      r==2,             c2s[2,s] = c1s[2,s-4] + eq[s,2],
+      EvenQ[r],         c2s[r,s] = c1s[r,s-2r+4] + c1s[r,s-2r] +
+                                   eq[s,r-2] + eq[s,r] ];
+
+ti[r_,s_]:=
+Which[r>s,              ti[s,r],
+      r==s,             1-Mod[r,2],
+      True,             (c[r,s]+cs[r,s])/2 ];
+
+A068920[n_]:=
+(* Table by diagonals of t[r,s]. *)
+Module[{x},
+  x = Floor[(Sqrt[8n+1]-1)/2];
+  t[n+1-x(x+1)/2, (x+1)(x+2)/2-n] ];
+
+A068926[n_]:=
+(* Table by diagonals of ti[r,s]. *)
+Module[{x},
+  x = Floor[(Sqrt[8n+1]-1)/2];
+  ti[n+1-x(x+1)/2, (x+1)(x+2)/2-n] ];
+
+A052270[n_]:=
+(* Number of incongruent tilings using n Tatami mats.
+   This sequence begins 1,2,3,4,5,9,9,14,19,27,34,56,70,...
+*)
+Module[{i,divs},
+  divs=Divisors[2n];
+  Sum[ti[divs[[i]],2n/divs[[i]]], {i,1,Ceiling[Length[divs]/2]}] ];
+
+A067925[n_]:=
+(* Total number of tilings using n Tatami mats.
+   This sequence begins 2,4,8,10,14,28,28,42,70,90,...
+*)
+Module[{i,divs},
+  divs=Divisors[2n];
+  Sum[t[divs[[i]],2n/divs[[i]]], {i,1,Length[divs]}] ];
+
+
+(* The function cl[r,s] gives the list of compositions counted by c[r,s].
+   cls[r,s] gives the symmetric ones, counted by cs[r,s].  These aren't
+   needed to compute the sequences, but are useful for testing and for
+   drawing the tilings.
+*)
+
+cl[r_,s_]:=
+Which[s<0,              {},
+      r==1,             If[OddQ[s], {}, {Table[2,{s/2}]}],
+      r==2,             cl[2,s] = Join[cl1[2,s], cl2[2,s], If[s==0,{{}},{}]],
+      OddQ[r],          cl[r,s] = Join[Prepend[ #,r-1]& /@ cl[r,s-r+1],
+                                       Prepend[ #,r+1]& /@ cl[r,s-r-1],
+                                       If[s==0,{{}},{}] ],
+      EvenQ[r],         cl[r,s] = Join[cl1[r,s], cl2[r,s],
+                                       If[s==0,{{}},{}] ] ];
+
+cl1[r_,s_]:=
+Which[s<=0,             {},
+      r==2,             Prepend[ #,1]& /@ cl[2,s-1],
+      EvenQ[r],         Join[Prepend[ #,1]& /@ cl2[r,s-1],
+                             If[s==1,{{1}},{}] ] ];
+
+cl2[r_,s_]:=
+Which[s<=0,             {},
+      r==2,             Join[Prepend[ #,2]& /@ cl1[2,s-2],
+                                        If[s==2,{{2}},{}] ],
+      EvenQ[r],         cl2[r,s] = Join[Prepend[ #,r-2]& /@ cl1[r,s-r+2],
+                                        Prepend[ #,r]& /@ cl1[r,s-r],
+                                        If[s==r-2, {{r-2}}, {}],
+                                        If[s==r, {{r}}, {}] ] ];
+
+cls[r_,s_]:=Select[cl[r,s], #==Reverse[ # ]&];
+
+
+Sketch of proof of the structure of tilings
+-------------------------------------------
+
+This lemma is the key to proving that all Tatami mat tilings are as
+described above:
+
+Lemma:  Consider a tiling by Tatami mats of a rectangule with r rows and
+s columns, with 1 <= r <= s.  There's no horizontal mat on the left edge,
+except possibly in the top or bottom row.
+
+Proof:  Suppose that there is.  If the row containing that mat is
+completely filled with horizontal mats (s/2 of them), then we have
+this situation; wlog we may assume that the row is in the bottom half
+of the rectangle:
+
+    .___________________.
+    |                   |
+    |                   |
+    |                   |
+    |___________________|
+    |___|___|___|___|___|
+    |                   |
+    |                   |
+    |___________________|
+
+Then the next row down contains at least s/2 - 1 horizontal mats, the one
+below that contains at least s/2 - 2 of them, and so on, all the way to
+the bottom (since r <= s and the initial row is in the bottom half):
+
+    .___________________.
+    |                   |
+    |                   |
+    |___________________|
+    |___|___|___|___|___|
+    | |___|___|___|___| |
+    |   |___|___|___|   |
+    |_____|___|___|_____|
+
+But now the triangle in the lower left corner can't be filled.
+
+So the row we started with must have at least one square that's covered
+by a vertical mat.  Wlog we may assume that the leftmost one extends
+downward from the given row:
+
+    .________________
+    |
+    |
+    |
+    |_____________.
+    |___|___|___| |
+    |           |_|
+    |
+    |________________
+
+Now the positions of mats extending up and to the right from there are forced:
+
+    .____________________
+    |
+    |           .___._.
+    |         ._|___| |
+    |_________|___| |_|
+    |___|___|___| |_|
+    |           |_|
+    |
+    |____________________
+
+This forcing continues until we hit either the top or right edge.  If
+we hit the top edge, then we have:
+
+    ._______________________
+    |             ._|___|
+    |           ._|___| |
+    |         ._|___| |_|
+    |_________|___| |_|
+    |___|___|___| |_|
+    |           |_|
+    |
+    |_______________________
+
+By working from right to left, we see that it's impossible to fill the
+top left region.
+
+So the forcing must hit the right edge:
+
+    ._________________.
+    |                 |
+    |                 |
+    |             .___|
+    |           ._|___|
+    |         ._|___| |
+    |_________|___| |_|
+    |___|___|___| |_| |
+    |           |_|   |
+    |_________________|
+
+The horizontal mats shown here force more horizontal mats above and
+below.  Suppose that none of these forced mats are in the top or bottom
+row.  Then the forced region is basically a rectangle tilted 45 degrees
+from the axes:
+
+    ._________________.
+    |                 |
+    |                 |
+    |         .___.   |
+    |       ._|___|_. |
+    |     ._|___|___|_|
+    |   ._|___|___|___|
+    | ._|___|___|___| |
+    |_|___|___|___|   |
+    |___|___|___|     |
+    | |___|___|       |
+    |   |___|         |
+    |                 |
+    |_________________|
+
+The number of columns in any such "tilted rectangle" is one plus the number
+of rows in it.  Since the region touches both the left and right edges of
+the room, the number of columns is s.  So the number of rows in the region
+is s-1.  But there are only r rows in the room, and we're assuming that
+the top and bottom rows aren't in the forced region, so s-1 <= r-2,
+contradicting r <= s.
+
+Hence the forced region touches either the top or bottom edge of the room.
+But this leaves a triangular region in at least one corner which can't be
+filled.
+
+This contradiction completes the proof of the lemma.
+
+
+>From the lemma, we see that the leftmost column of the room is filled
+with vertical mats, except possibly for its top and bottom squares.  We
+consider the cases r odd and r even separately:
+
+If r is odd, then either the top or bottom square in the leftmost column
+must be in a horizontal mat, but not both, so the left edge looks like this
+or its reflection across a horizontal line:
+
+    .________
+    | |
+    |_|
+    | |
+    |_|
+    | |
+    |_|
+    | |
+    |_|_.
+    |___|____
+
+This forces the positions of many other mats:
+
+    .______________________
+    | |___|___|___|
+    |_| |___|___|
+    | |_| |___|
+    |_| |_| |
+    | |_| |_|_.
+    |_| |_|___|_.
+    | |_|___|___|_.
+    |_|___|___|___|_.
+    |___|___|___|___|______
+
+Now there are 2 possibilities for the leftmost unoccupied squares,
+each of which forces the positions of more mats:
+
+    .______________________      .______________________
+    | |___|___|___|___| |        | |___|___|___| |
+    |_| |___|___|___| |_|        |_| |___|___| |_|
+    | |_| |___|___| |_| |        | |_| |___| |_| |
+    |_| |_| |___| |_| |_|        |_| |_| | |_| |_|
+    | |_| |_|___|_| |_| |   or   | |_| |_|_| |_| |
+    |_| |_|___|___|_| |_|        |_| |_|___|_| |_|
+    | |_|___|___|___|_| |        | |_|___|___|_| |
+    |_|___|___|___|___|_|        |_|___|___|___|_|
+    |___|___|___|___|___|__      |___|___|___|___|______
+
+Now we've filled either an r x (r+1) rectangle or an r x (r-1) rectangle.
+In either case, the next column of the room must look like the leftmost
+column reflected across a horizontal line, and again this forces the
+next r-1 or r+1 columns.  The end result, for r odd, is that the entire
+room is filled with r x (r-1) and r x (r+1) rectangles joined along their
+vertical sides.
+
+
+For r even, either the leftmost column is filled with vertical mats, giving
+an r x 1 component, or it has horizontal mats at the top and bottom and
+vertical ones elsewhere, which forces either an r x (r-2) component or an
+r x r component.  (Details of this case are left for the reader.)
+
+------------------------------------------------------------------------
+
