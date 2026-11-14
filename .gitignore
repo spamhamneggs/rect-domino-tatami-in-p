@@ -2,6 +2,9 @@ __pycache__/
 .DS_Store
 cover-letter.pdf
 cover-letter.tex
+response-letter.pdf
+response-letter.tex
+validation.zip
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

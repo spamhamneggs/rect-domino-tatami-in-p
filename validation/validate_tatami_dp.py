@@ -1,6 +1,7 @@
-"""Validation for "Rectangular Domino Tatami Tiling is in P" (paper-draft, Section 6).
+"""Table consistency checks for paper-draft, Section 5.2.
 
-Compares the decision procedure of Section 4 against two published enumeration
+Compares the arithmetic decision procedure and the block DP of Section 3.1
+against two published enumeration
 tables: Ruskey and Woodcock Table 2 (T(m,n) for 1 <= m,n <= 16) and Hickerson's
 t(r,s) table (1 <= r,s <= 15):
 
@@ -8,7 +9,7 @@ t(r,s) table (1 <= r,s <= 15):
      and all 225 Hickerson entries.
   2. Exact counts where determined by the cited theorems: 227 RW09 entries
      and 198 Hickerson entries. The script checks entries with min(m,n) == 2
-     for positivity only, because the draft does not cite the m = 2
+     for tileability only, because the draft does not cite the m = 2
      composition rule.
   3. Table symmetry on both tables, consistent with the rotation argument.
 
@@ -69,8 +70,9 @@ HICKERSON_T = {
 
 
 def tileable(r, c):
-    """Section 4 decision procedure: does an r x c rectangle admit a
-    pure-domino tatami tiling?"""
+    """Section 3.1 block DP, using O(n) Boolean entries for the longer side n."""
+    if r < 1 or c < 1:
+        raise ValueError("dimensions must be positive")
     m, n = min(r, c), max(r, c)
     if m == 1:
         return n % 2 == 0
@@ -100,6 +102,20 @@ def tileable(r, c):
         if reach_l[i] and i + 1 <= n:
             reach_s[i + 1] = True
     return reach_s[n] or reach_l[n]
+
+
+def arithmetic_tileable(r, c):
+    """Section 3.1 DECIDE: constantly many integer operations on binary input."""
+    if r < 1 or c < 1:
+        raise ValueError("dimensions must be positive")
+    m, n = min(r, c), max(r, c)
+    if m == 1:
+        return n % 2 == 0
+    if m == 2:
+        return True
+    if m % 2:
+        return n % 2 == 0 and (n + m) // (m + 1) <= n // (m - 1)
+    return max(1, (n + m - 1) // (m + 1)) <= (n + 1) // (m - 1)
 
 
 def count_tilings(r, c):
@@ -135,31 +151,36 @@ def count_tilings(r, c):
 
 
 def check_table(table, size):
-    """Compare tileable() and count_tilings() against table[m][n-1] for
-    1 <= m, n <= size. Returns (exist_bad, count_bad, count_ok,
-    positivity_ok)."""
+    """Check tileable(), arithmetic_tileable(), and count_tilings() against
+    table[m][n - 1] for 1 <= m, n <= size. Return
+    (exist_bad, count_bad, count_ok, exist_only_ok)."""
     exist_bad, count_bad = [], []
-    count_ok = positivity_ok = 0
+    count_ok = exist_only_ok = 0
     for m in range(1, size + 1):
         for n in range(1, size + 1):
             published = table[m][n - 1]
-            if tileable(m, n) != (published > 0):
+            if tileable(m, n) != (published > 0) or arithmetic_tileable(m, n) != (
+                published > 0
+            ):
                 exist_bad.append((m, n, published))
             count = count_tilings(m, n)
             if count is None:
                 if published > 0:
-                    positivity_ok += 1
+                    exist_only_ok += 1
                 else:
                     count_bad.append((m, n, "non-positive", published))
             elif count != published:
                 count_bad.append((m, n, count, published))
             else:
                 count_ok += 1
-    return exist_bad, count_bad, count_ok, positivity_ok
+    return exist_bad, count_bad, count_ok, exist_only_ok
 
 
 def check_symmetric(table, size):
-    """Pairs (m, n) with table[m][n] != table[n][m], for 1 <= m, n <= size."""
+    """Return pairs (m, n) where table[m][n - 1] != table[n][m - 1].
+
+    Check every pair with 1 <= m, n <= size.
+    """
     return [
         (m, n)
         for m in range(1, size + 1)
@@ -172,7 +193,7 @@ def main():
     failed = False
     for name, table, size in (("RW09", TABLE2, 16), ("Hickerson", HICKERSON_T, 15)):
         total = size * size
-        exist_bad, count_bad, count_ok, positivity_ok = check_table(table, size)
+        exist_bad, count_bad, count_ok, exist_only_ok = check_table(table, size)
         asymmetric = check_symmetric(table, size)
         print(
             f"{name} existence: {total - len(exist_bad)}/{total} match "
@@ -180,7 +201,7 @@ def main():
         )
         print(
             f"{name} counts: {count_ok} exact matches, "
-            f"{positivity_ok} positivity-only (min(m,n) == 2), "
+            f"{exist_only_ok} existence-only (min(m,n) == 2), "
             f"mismatches: {count_bad[:8]}"
         )
         print(
